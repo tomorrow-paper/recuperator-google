@@ -1,0 +1,11 @@
+[package]
+name = "recuperator-google"
+version = "0.1.0"
+authors = ["Valentin Fries <contact@fries.io>", "Vincent Milano <vincent_mot@hotmail.fr"]
+
+[dependencies]
+tomorrow-core = {git = "https://github.com/tomorrow-paper/tomorrow-core"}
+tomorrow-recuperator = {git = "https://github.com/tomorrow-paper/tomorrow-recuperator"}
+tomorrow-http = {git = "https://github.com/tomorrow-paper/tomorrow-http"}
+
+html5ever = "0.21.0"
