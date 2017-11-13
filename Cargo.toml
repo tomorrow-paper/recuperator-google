@@ -1,6 +1,6 @@
 [package]
 name = "recuperator-google"
-version = "0.1.2"
+version = "0.1.3"
 authors = ["Valentin Fries <contact@fries.io>", "Vincent Milano <vincent_mot@hotmail.fr"]
 
 [dependencies]
