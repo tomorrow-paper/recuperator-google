@@ -64,7 +64,13 @@ impl <T> GoogleRecuperator<T> where T: Requester {
     }
 
     fn skip_url_prefix(&self, url: &str) -> String {
-        url.chars().skip(7).collect::<String>()
+        url.chars()
+            .skip(7)
+            .collect::<String>()
+            .split("&sa=")
+            .next()
+            .map(String::from)
+            .unwrap()
     }
 }
 
