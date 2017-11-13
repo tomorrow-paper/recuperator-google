@@ -4,6 +4,7 @@ use tomorrow_http::raw::*;
 use tomorrow_recuperator::Recuperator;
 
 use select::document::Document;
+use select::node::Node;
 use select::predicate::{Class, Name};
 
 use ::{GoogleRequest, GoogleResponse};
@@ -24,41 +25,40 @@ impl <T> GoogleRecuperator<T> where T: Requester {
     }
 
     fn extract_results(&self, document: Document) -> Vec<SearchResult> {
-        let names = self.extract_names(&document);
-        let descriptions = self.extract_descriptions(&document);
-        let links = self.extract_links(&document);
-
-        names.iter()
-             .zip(descriptions.iter())
-             .zip(links.iter())
-             .map(|((name, description), url)| SearchResult::new(name.as_ref(), description.as_ref(), url.as_ref()))
-             .collect()
-    }
-
-    fn extract_names(&self, document: &Document) -> Vec<String> {
         document.find(Class("g"))
-            .map(|g| g.find(Name("h3")).next())
-            .filter(Option::is_some).map(Option::unwrap)
-            .map(|node| node.text())
+            .map(|g| self.map_to_search_result(g))
+            .filter(|search_result| search_result.name.len() > 0)
             .collect()
     }
 
-    fn extract_descriptions(&self, document: &Document) -> Vec<String> {
-        document.find(Class("g"))
-            .map(|g| g.find(Class("st")).next())
-            .filter(Option::is_some).map(Option::unwrap)
-            .map(|node| node.text())
+    fn map_to_search_result(&self, node: Node) -> SearchResult {
+        let name = self.extract_name(&node);
+        let description = self.extract_description(&node);
+        let url = self.extract_link(&node);
+
+        SearchResult::new(name.as_ref(), description.as_ref(), url.as_ref())
+    }
+
+    fn extract_name(&self, node: &Node) -> String {
+        node.find(Name("h3"))
+            .map(|h3| h3.text())
             .collect()
     }
 
-    fn extract_links(&self, document: &Document) -> Vec<String> {
-        document.find(Class("g"))
-            .map(|g| g.find(Name("h3")).next())
-            .filter(Option::is_some).map(Option::unwrap)
-            .map(|node| node.find(Name("a")).next())
-            .filter(Option::is_some).map(Option::unwrap)
+    fn extract_description(&self, node: &Node) -> String {
+        node.find(Class("st"))
+            .map(|st| st.text())
+            .collect()
+    }
+
+    fn extract_link(&self, node: &Node) -> String {
+        node.find(Name("h3"))
+            .map(|h3| h3.find(Name("a")).next())
+            .filter(Option::is_some)
+            .map(Option::unwrap)
             .map(|a| a.attr("href"))
-            .filter(Option::is_some).map(Option::unwrap)
+            .filter(Option::is_some)
+            .map(Option::unwrap)
             .map(|url| self.skip_url_prefix(url))
             .collect()
     }
